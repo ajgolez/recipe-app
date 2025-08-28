@@ -18,7 +18,7 @@ import { Badge } from './ui/badge';
 
  import { CustomRecipeCreator } from './CustomRecipeCreator';
 import { CustomRecipeManager } from './CustomRecipeManager';
- import { recipes as systemRecipes } from '../data/recipes';
+ //import { recipes as systemRecipes } from '../data/recipes'; // Sample STATIC data for system recipes
  import type { Recipe } from '../types/recipe';
  import { toast } from 'sonner';
 
@@ -50,6 +50,24 @@ export function RecipeBrowser({ userPreferences, onStorageError }: RecipeBrowser
    const [showCustomManager, setShowCustomManager] = useState(false);
   const [editingCustomRecipe, setEditingCustomRecipe] = useState<CustomRecipe | null>(null);
    const [showSavedRecipes, setShowSavedRecipes] = useState(false);
+const [systemRecipes, setSystemRecipes] = useState<Recipe[]>([]);
+
+useEffect(() => {
+  const fetchRecipes = async () => {
+    try {
+      const res = await fetch('/api/recipes', {
+        cache: 'no-store',
+      });
+      const data = await res.json();
+      setSystemRecipes(data);
+    } catch (error) {
+      console.error('Failed to fetch recipes:', error);
+      toast.error('Failed to load recipes.');
+    }
+  };
+
+  fetchRecipes();
+}, []);
 
   // Load saved data from localStorage with error handling
   useEffect(() => {

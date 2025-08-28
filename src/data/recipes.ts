@@ -3,7 +3,7 @@ import { Recipe } from "../types/recipe";
 export const recipes: Recipe[] = [
   {
     id: "a6d75dc3-26d9-4c72-b914-d3055a2b8133",
-    title: "Spaghetti Carbonara 1",
+    title: "Spaghetti Carbonara Tonius",
     description: "A delicious spaghetti carbonara 1 perfect for any meal.",
     image: "https://images.unsplash.com/photo-1608756687911-aa1599ab3bd9?w=400&h=300&fit=crop",
     prepTime: 15,
