@@ -237,7 +237,7 @@ const allRecipes = useMemo(() => {
       //   }}
       //   onSave={handleSaveCustomRecipe}
       // />
-      <div>test1</div>
+      <div>CustomRecipeCreator</div>
     );
   }
 
@@ -254,7 +254,7 @@ const allRecipes = useMemo(() => {
       //   onDelete={handleDeleteCustomRecipe}
       //   onViewRecipe={setSelectedRecipe}
       // />
-      <div>test</div>
+      <div>CustomRecipeManager</div>
     );
   }
 
@@ -416,6 +416,9 @@ const allRecipes = useMemo(() => {
                   </div>
                 </div>
               )}
+
+              {/* SIMPLE SAMPLE OF RECIPE GRID */}
+              <div style={{'border':'1px solid red'}}>Simple Sample</div>
 
               {/* Recipe Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -619,15 +622,6 @@ const allRecipes = useMemo(() => {
           </DialogContent>
         </Dialog>
       )}
-      {/* // <Button
-      //   variant="default"
-      //   size="default"
-      //   //onClick={() => setShowCustomCreator(true)}
-      //   //className="hidden sm:flex"
-      // >
-      //   <Plus className="h-4 w-4 mr-2" />
-      //   Just a sample Button
-      // </Button> */}
     </div>
   );
 }

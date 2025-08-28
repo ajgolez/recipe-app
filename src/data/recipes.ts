@@ -11,7 +11,7 @@ export const recipes: Recipe[] = [
     servings: 2,
     difficulty: "Easy",
     cuisine: "Asian",
-    dietaryTags: ["Gluten-Free", "Nut-Free"],
+    dietaryTags: ["Gluten-Free", "Nut-Free", "Nut-Free", "Nut-Free", "Nut-Free"],
     ingredients: [
       {
         name: "Ground Beef",
