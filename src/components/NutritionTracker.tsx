@@ -63,8 +63,7 @@ const MACRO_COLORS = {
 
 export function NutritionTracker({ mealPlans, userGoals, selectedDate }: NutritionTrackerProps) {
   // Calculate nutrition for selected day or current day
-  const currentDate = selectedDate || new Date();
-  const dateKey = currentDate.toISOString().split('T')[0];
+const currentDate = useMemo(() => selectedDate || new Date(), [selectedDate]);  const dateKey = currentDate.toISOString().split('T')[0];
   const todaysPlan = mealPlans.get(dateKey);
 
   // Calculate weekly nutrition data
@@ -140,7 +139,9 @@ export function NutritionTracker({ mealPlans, userGoals, selectedDate }: Nutriti
   }
 
   const todaysNutrition = calculateDayNutrition(todaysPlan);
-  const goals = { ...DAILY_RECOMMENDED, ...userGoals };
+  const goals = useMemo(() => {
+    return { ...DAILY_RECOMMENDED, ...userGoals };
+  }, [userGoals]);
 
   // Calculate macro breakdown for pie chart
   const macroBreakdown: MacroBreakdown[] = [

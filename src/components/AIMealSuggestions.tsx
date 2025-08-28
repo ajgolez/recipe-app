@@ -151,7 +151,7 @@ export function AIMealSuggestions({
           .slice(0, 6)
       }
     ];
-  }, [userPreferences, plannedRecipes, targetMealType, calculateAIScore]);
+  }, [calculateAIScore]);
 
   const handleRefreshSuggestions = () => {
     setIsLoading(true);

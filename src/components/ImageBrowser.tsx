@@ -3,10 +3,9 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Search, Image, Check, X } from 'lucide-react';
+import { Search, Image as ImageIcon, Check, X } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { toast } from 'sonner';
-
 interface ImageBrowserProps {
   onImageSelect: (imageUrl: string) => void;
   selectedImage?: string;
@@ -208,7 +207,7 @@ export function ImageBrowser({ onImageSelect, selectedImage }: ImageBrowserProps
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Image className="h-4 w-4 mr-2" />
+                  <ImageIcon aria-hidden="true" focusable="false" className="h-4 w-4 mr-2" />
                   Change Image
                 </Button>
               </DialogTrigger>
@@ -311,7 +310,7 @@ export function ImageBrowser({ onImageSelect, selectedImage }: ImageBrowserProps
           <DialogTrigger asChild>
             <Button variant="outline" className="w-full h-24 border-dashed">
               <div className="text-center">
-                <Image className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                <ImageIcon  aria-hidden="true" focusable="false" className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">Click to add recipe image</p>
               </div>
             </Button>

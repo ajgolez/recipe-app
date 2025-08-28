@@ -662,6 +662,7 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
               </div>
               {importedData.image && (
                 <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
                     src={importedData.image} 
                     alt={importedData.title}

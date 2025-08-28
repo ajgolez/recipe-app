@@ -1,5 +1,5 @@
 "use client"; //	In Next.js App Router, files are Server Components by default.
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Button } from './ui/button';
  import { Card, CardContent } from './ui/card';
@@ -109,7 +109,9 @@ useEffect(() => {
   }, [customRecipes, onStorageError]);
 
   // Get all recipes (system + custom)
-  const allRecipes = [...systemRecipes, ...customRecipes];
+const allRecipes = useMemo(() => {
+  return [...systemRecipes, ...customRecipes];
+}, [systemRecipes, customRecipes]);
 
   // Filter recipes based on search and filters
   useEffect(() => {
@@ -160,7 +162,7 @@ useEffect(() => {
     }
 
      setFilteredRecipes(filtered);
-   }, [selectedFilters, systemRecipes, customRecipes]);
+   }, [selectedFilters, systemRecipes, customRecipes, allRecipes]);
 
   const toggleSaveRecipe = (recipeId: string) => {
     try {

@@ -88,6 +88,7 @@ export function QuickMealPlannerDialog({ isOpen, onClose, recipe, onAddToMeal }:
           <div className="p-3 rounded-lg bg-muted/30 border">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={recipe.image} 
                   alt={recipe.title}

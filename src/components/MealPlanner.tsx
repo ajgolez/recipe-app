@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, ShoppingCart, ArrowLeft, Sparkles, BarChart3, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -43,9 +43,9 @@ export function MealPlanner({ onBack, initialMealPlans, onMealPlansChange, userP
   const [shoppingListItems, setShoppingListItems] = useState(generateShoppingList([]));
 
   // Helper function to update shopping list from meal plan
-  const updateShoppingListFromMealPlan = () => {
+  const updateShoppingListFromMealPlan = useCallback(() => {
     // Calculate current planned recipes
-    let plannedRecipes: Recipe[] = [];
+    const plannedRecipes: Recipe[] = [];
     mealPlans.forEach(dayPlan => {
       dayPlan.meals.forEach(meal => {
         plannedRecipes.push(...meal.recipes);
@@ -85,12 +85,12 @@ export function MealPlanner({ onBack, initialMealPlans, onMealPlansChange, userP
         console.error('Failed to update shopping list:', error);
       }
     }
-  };
+  }, [mealPlans]);
 
   // Update shopping list whenever meal plans change
   useEffect(() => {
     updateShoppingListFromMealPlan();
-  }, [mealPlans]);
+  }, [mealPlans, updateShoppingListFromMealPlan]);
 
   // Create initial meal slots for a day
   const createEmptyDay = (date: Date): DayPlan => ({
