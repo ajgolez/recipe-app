@@ -110,7 +110,8 @@ useEffect(() => {
 
   // Get all recipes (system + custom)
 const allRecipes = useMemo(() => {
-  return [...systemRecipes, ...customRecipes];
+  // spread elements of the arrays to create a new arrays to avoid direct mutation
+  return [...systemRecipes, ...customRecipes]; //combine the contents of the two arrays into one single array
 }, [systemRecipes, customRecipes]);
 
   // Filter recipes based on search and filters
@@ -164,6 +165,7 @@ const allRecipes = useMemo(() => {
      setFilteredRecipes(filtered);
    }, [selectedFilters, systemRecipes, customRecipes, allRecipes]);
 
+  // Toggle save/unsave recipe with error handling
   const toggleSaveRecipe = (recipeId: string) => {
     try {
       const newSavedIds = savedRecipeIds.includes(recipeId)
@@ -187,6 +189,7 @@ const allRecipes = useMemo(() => {
     }
   };
 
+  // Handlers for custom recipe creation and management
   const handleSaveCustomRecipe = (recipe: CustomRecipe) => {
     if (editingCustomRecipe) {
       // Update existing recipe
@@ -203,12 +206,14 @@ const allRecipes = useMemo(() => {
     setShowCustomCreator(false);
   };
 
+  // Edit existing custom recipe
   const handleEditCustomRecipe = (recipe: CustomRecipe) => {
     setEditingCustomRecipe(recipe);
     setShowCustomCreator(true);
     setShowCustomManager(false);
   };
 
+  // Delete custom recipe with error handling
   const handleDeleteCustomRecipe = (recipeId: string) => {
     try {
       setCustomRecipes(prev => prev.filter(r => r.id !== recipeId));
@@ -230,31 +235,29 @@ const allRecipes = useMemo(() => {
 
   if (showCustomCreator) {
     return (
-      // <CustomRecipeCreator
-      //   onBack={() => {
-      //     setShowCustomCreator(false);
-      //     setEditingCustomRecipe(null);
-      //   }}
-      //   onSave={handleSaveCustomRecipe}
-      // />
-      <div>CustomRecipeCreator</div>
+      <CustomRecipeCreator
+        onBack={() => {
+          setShowCustomCreator(false);
+          setEditingCustomRecipe(null);
+        }}
+        onSave={handleSaveCustomRecipe}
+      />
     );
   }
 
   if (showCustomManager) {
     return (
-      // <CustomRecipeManager
-      //   customRecipes={customRecipes}
-      //   onBack={() => setShowCustomManager(false)}
-      //   onCreateNew={() => {
-      //     setShowCustomManager(false);
-      //     setShowCustomCreator(true);
-      //   }}
-      //   onEdit={handleEditCustomRecipe}
-      //   onDelete={handleDeleteCustomRecipe}
-      //   onViewRecipe={setSelectedRecipe}
-      // />
-      <div>CustomRecipeManager</div>
+      <CustomRecipeManager
+        customRecipes={customRecipes}
+        onBack={() => setShowCustomManager(false)}
+        onCreateNew={() => {
+          setShowCustomManager(false);
+          setShowCustomCreator(true);
+        }}
+        onEdit={handleEditCustomRecipe}
+        onDelete={handleDeleteCustomRecipe}
+        onViewRecipe={setSelectedRecipe}
+      />
     );
   }
 
@@ -418,18 +421,20 @@ const allRecipes = useMemo(() => {
               )}
 
               {/* SIMPLE SAMPLE OF RECIPE GRID */}
-              <div style={{'border':'1px solid red'}}>Simple Sample</div>
+              <div style={{'border':'1px solid red'}}>Simple Sample
+              
+              </div>
 
               {/* Recipe Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredRecipes.map((recipe) => (
+                {filteredRecipes.map((test) => (
                   <RecipeCard
-                    key={recipe.id}
-                    recipe={recipe}
-                    isSaved={savedRecipeIds.includes(recipe.id)}
-                    onToggleSave={() => toggleSaveRecipe(recipe.id)}
-                    onClick={() => setSelectedRecipe(recipe)}
-                    isCustom={'isCustom' in recipe && (recipe as CustomRecipe).isCustom}
+                    key={test.id}
+                    recipe={test}
+                    isSaved={savedRecipeIds.includes(test.id)}
+                    onToggleSave={() => toggleSaveRecipe(test.id)}
+                    onClick={() => setSelectedRecipe(test)}
+                    isCustom={'isCustom' in test && (test as CustomRecipe).isCustom}
                   />
                 ))}
               </div>

@@ -35,7 +35,26 @@ interface CustomRecipe {
     carbs: number;
     fat: number;
     fiber: number;
+    sugar: number;
+    sodium: number;
+    cholesterol: number;
+    calcium: number;
+    iron: number;
+    vitaminD: number;
+    potassium: number;
+    vitaminC: number;
+    vitaminA: number;
+    vitaminB12: number;
+    vitaminE: number;
+    folate: number;
+    magnesium: number;
+    zinc: number;
+    phosphorus: number;
   };
+  rating: number;
+  reviewCount: number;
+  healthScore: number;
+  mealTypes: string[];
   isCustom: true;
   createdAt: string;
   source?: 'manual' | 'import' | 'photo';
@@ -103,7 +122,22 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
       protein: '',
       carbs: '',
       fat: '',
-      fiber: ''
+      fiber: '',
+      sugar: '',
+      sodium: '',
+      cholesterol: '',
+      calcium: '',
+      iron: '',
+      vitaminD: '',
+      potassium: '',
+      vitaminC: '',
+      vitaminA: '',
+      vitaminB12: '',
+      vitaminE: '',
+      folate: '',
+      magnesium: '',
+      zinc: '',
+      phosphorus: ''
     }
   });
 
@@ -222,7 +256,26 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
         carbs: parseInt(formData.nutrition.carbs) || 0,
         fat: parseInt(formData.nutrition.fat) || 0,
         fiber: parseInt(formData.nutrition.fiber) || 0,
+        sugar: parseInt(formData.nutrition.sugar) || 0,
+        sodium: 0,
+        cholesterol: 0,
+        calcium: 0,
+        iron: 0,
+        vitaminD: 0,
+        potassium: 0,
+        vitaminC: 0,
+        vitaminA: 0,
+        vitaminB12: 0,
+        vitaminE: 0,
+        folate: 0,
+        magnesium: 0,
+        zinc: 0,
+        phosphorus: 0
       },
+      rating: 0,
+      reviewCount: 0,
+      healthScore: 0,
+      mealTypes: [],
       isCustom: true,
       createdAt: new Date().toISOString(),
       source: 'manual'
@@ -583,7 +636,22 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
           protein: 12,
           carbs: 58,
           fat: 8,
-          fiber: 4
+          fiber: 4,
+          sugar: 6,
+          sodium: 0,
+          cholesterol: 0,
+          calcium: 0,
+          iron: 0,
+          vitaminD: 0,
+          potassium: 0,
+          vitaminC: 0,
+          vitaminA: 0,
+          vitaminB12: 0,
+          vitaminE: 0,
+          folate: 0,
+          magnesium: 0,
+          zinc: 0,
+          phosphorus: 0
         }
       };
       
@@ -735,7 +803,22 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
           protein: 6,
           carbs: 35,
           fat: 10,
-          fiber: 2
+          fiber: 2,
+          sugar: 15,
+          sodium: 0,
+          cholesterol: 0,
+          calcium: 0,
+          iron: 0,
+          vitaminD: 0,
+          potassium: 0,
+          vitaminC: 0,
+          vitaminA: 0,
+          vitaminB12: 0,
+          vitaminE: 0,
+          folate: 0,
+          magnesium: 0,
+          zinc: 0,
+          phosphorus: 0
         }
       };
       
