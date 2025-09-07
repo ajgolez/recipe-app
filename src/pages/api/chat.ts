@@ -1,11 +1,11 @@
 import { Recipe } from "@/types/recipe";
 import { NextApiRequest, NextApiResponse } from "next";
-import OpenAI from "openai";
+import { openRouter, defaultOpenRouterModel } from "@/utils/openRouterClient";
 
-// Initialize OpenAI with API key
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// OPTION: Initialize OpenAI with API key
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
 
 export default async function handler(
   req: NextApiRequest,
@@ -82,9 +82,13 @@ Return the answer strictly as a JSON array of:
 ]
 `;
 
-    // 🧠 Send the message to OpenAI Chat Completion API
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Cheapest suitable model for chat
+    // Send the message to OpenAI Chat Completion API
+    // const completion = await openai.chat.completions.create({
+    // model: "gpt-3.5-turbo", // Cheapest suitable model for chat
+    
+    // Use OpenRouter client instead of OpenAI
+    const completion = await openRouter.chat.completions.create({
+    model: defaultOpenRouterModel,
       messages: [
         {
           role: "system",
