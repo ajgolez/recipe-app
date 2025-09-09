@@ -1,6 +1,7 @@
 import { Recipe } from "@/types/recipe";
 import { NextApiRequest, NextApiResponse } from "next";
-import { openRouter, defaultOpenRouterModel } from "@/utils/openRouterClient";
+import { openRouter, defaultOpenRouterModel } from "@/utils/openRouterClient"; //Option to use OpenRouter
+//import { openai } from "@/utils/openaiClient"; // Use OpenAI client directly
 import { filterRecipesByMessage } from "@/utils/filterRecipes";
 
 // OPTION: Initialize OpenAI with API key
@@ -37,7 +38,7 @@ export default async function handler(
     // and a poor user experience.
     const { filtered } = filterRecipesByMessage(message, recipes);
     const recipesToSend = filtered.length > 0 ? filtered : recipes;
-    
+    console.log('recipesToSend count:', recipesToSend.length);
     // Even if the it does not send data, it should still suggest something. 
     // To keep user engaged, always give something useful buty must be explain clearly 
     // so as not to misinform.
@@ -110,9 +111,9 @@ Return the answer strictly as a JSON array of:
 ]
 `;
 
-    // Send the message to OpenAI Chat Completion API
-    // const completion = await openai.chat.completions.create({
-    // model: "gpt-3.5-turbo", // Cheapest suitable model for chat
+    // // Send the message to OpenAI Chat Completion API
+    //  const completion = await openai.chat.completions.create({ // Use OpenAI client directly
+    //  model: "gpt-3.5-turbo", // Cheapest suitable model for chat
     
     // Use OpenRouter client instead of OpenAI
     const completion = await openRouter.chat.completions.create({
