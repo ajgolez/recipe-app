@@ -1,6 +1,7 @@
 import { Recipe } from "@/types/recipe";
 import { NextApiRequest, NextApiResponse } from "next";
 import { openRouter, defaultOpenRouterModel } from "@/utils/openRouterClient";
+import { filterRecipesByMessage } from "@/utils/filterRecipes";
 
 // OPTION: Initialize OpenAI with API key
 // const openai = new OpenAI({
@@ -11,10 +12,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { message } = req.body; // 🟡 User's input question
+  const { message } = req.body; // User's input question
 
   try {
-    // Fetch recipes from your internal API
+    // Step 1: Fetch recipes from internal API
     const recipeRes = await fetch(
       `${
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
@@ -22,8 +23,35 @@ export default async function handler(
     );
     const recipes = await recipeRes.json();
 
+    // Step 2: Filter based on message (cuisine, dietary)
+    // Use filtered recipes if any match, otherwise use all recipes
+    // This ensures we always have something to suggest
+    // Even if no match, we will still use all recipes as fallback
+    // to let AI pick based on health criteria
+    // This keeps user engaged instead of getting "no results"
+    // which can be frustrating
+    // The AI can then pick the healthiest options from all recipes
+    // based on user's health goals
+    // rather than strictly filtering out everything
+    // which may lead to no suggestions at all
+    // and a poor user experience.
+    const { filtered } = filterRecipesByMessage(message, recipes);
+    const recipesToSend = filtered.length > 0 ? filtered : recipes;
+    
+    // Even if the it does not send data, it should still suggest something. 
+    // To keep user engaged, always give something useful buty must be explain clearly 
+    // so as not to misinform.
+    const noMatchReason =
+      filtered.length === 0
+        ? "**Note:** No exact match found based on cuisine or dietary tags. Provide fallback suggestions based on general healthiness.\n"
+        : "";
+
     // Slim down recipe data to reduce token cost and focus on health criteria
-    const slimmedRecipes = recipes.map((r: any) => ({
+    // const slimmedRecipes = recipes.map((r: any) => ({
+    // OR
+
+    // Step 3: Slim down recipe data
+    const slimmedRecipes = recipesToSend.map((r: Recipe) => ({
       id: r.id,
       title: r.title,
       description: r.description,
@@ -38,7 +66,7 @@ export default async function handler(
       mealTypes: r.mealTypes,
     }));
 
-    // Format the slimmed recipes into a readable prompt
+    // Step 4: Format the slimmed recipes into a readable prompt for AI
     const recipeText = slimmedRecipes
       .map((r: Recipe) => {
         return `
@@ -57,7 +85,7 @@ export default async function handler(
     // Prompt GPT to select the most suitable recipes based on user's query
    const prompt = `
 You are a smart recipe assistant.
-
+${noMatchReason}
 Use the following logic when evaluating recipes based on user health goals:
 
 - Healthy: Prefer high healthScore, low sugar, sodium, and fat.
