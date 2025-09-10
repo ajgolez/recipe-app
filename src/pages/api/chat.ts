@@ -3,6 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { openRouter, defaultOpenRouterModel } from "@/utils/openRouterClient"; //Option to use OpenRouter
 //import { openai } from "@/utils/openaiClient"; // Use OpenAI client directly
 import { filterRecipesByMessage } from "@/utils/filterRecipes";
+import { formatRecipesForGPT } from "@/utils/formatRecipesForGPT";
+import { healthTags } from "@/utils/filters/keywords";
 
 // OPTION: Initialize OpenAI with API key
 // const openai = new OpenAI({
@@ -36,9 +38,18 @@ export default async function handler(
     // rather than strictly filtering out everything
     // which may lead to no suggestions at all
     // and a poor user experience.
-    const { filtered } = filterRecipesByMessage(message, recipes);
+    const { dietaryMatches, filtered } = filterRecipesByMessage(message, recipes);
     const recipesToSend = filtered.length > 0 ? filtered : recipes;
-    console.log('recipesToSend count:', recipesToSend.length);
+
+
+    // Decide whether this is a nutrition-focused or basic prompt
+    const isHealthQuery = (dietaryMatches ?? []).some(tag =>
+        healthTags.includes(tag.toLowerCase())
+    );
+
+    const recipeText = formatRecipesForGPT(recipesToSend, isHealthQuery ? "nutrition" : "basic");
+
+
     // Even if the it does not send data, it should still suggest something. 
     // To keep user engaged, always give something useful buty must be explain clearly 
     // so as not to misinform.
@@ -52,36 +63,36 @@ export default async function handler(
     // OR
 
     // Step 3: Slim down recipe data
-    const slimmedRecipes = recipesToSend.map((r: Recipe) => ({
-      id: r.id,
-      title: r.title,
-      description: r.description,
-      healthScore: r.healthScore,
-      nutrition: {
-        sugar: r.nutrition.sugar,
-        sodium: r.nutrition.sodium,
-        fat: r.nutrition.fat,
-        calories: r.nutrition.calories,
-      },
-      dietaryTags: r.dietaryTags,
-      mealTypes: r.mealTypes,
-    }));
+    // const slimmedRecipes = recipesToSend.map((r: Recipe) => ({
+    //   id: r.id,
+    //   title: r.title,
+    //   description: r.description,
+    //   healthScore: r.healthScore,
+    //   nutrition: {
+    //     sugar: r.nutrition.sugar,
+    //     sodium: r.nutrition.sodium,
+    //     fat: r.nutrition.fat,
+    //     calories: r.nutrition.calories,
+    //   },
+    //   dietaryTags: r.dietaryTags,
+    //   mealTypes: r.mealTypes,
+    // }));
 
-    // Step 4: Format the slimmed recipes into a readable prompt for AI
-    const recipeText = slimmedRecipes
-      .map((r: Recipe) => {
-        return `
-            ID: ${r.id}
-            Title: ${r.title}
-            Description: ${r.description}
-            Dietary Tags: ${r.dietaryTags.join(", ")}
-            Health Score: ${r.healthScore}
-            Meal Types: ${r.mealTypes.join(", ")}
-            Sugar: ${r.nutrition.sugar}g, Sodium: ${r.nutrition.sodium}mg
-            Fat: ${r.nutrition.fat}g, Calories: ${r.nutrition.calories}kcal
-            `;
-      })
-      .join("\n");
+    // // Step 4: Format the slimmed recipes into a readable prompt for AI
+    // const recipeText = slimmedRecipes
+    //   .map((r: Recipe) => {
+    //     return `
+    //         ID: ${r.id}
+    //         Title: ${r.title}
+    //         Description: ${r.description}
+    //         Dietary Tags: ${r.dietaryTags.join(", ")}
+    //         Health Score: ${r.healthScore}
+    //         Meal Types: ${r.mealTypes.join(", ")}
+    //         Sugar: ${r.nutrition.sugar}g, Sodium: ${r.nutrition.sodium}mg
+    //         Fat: ${r.nutrition.fat}g, Calories: ${r.nutrition.calories}kcal
+    //         `;
+    //   })
+    //   .join("\n");
 
     // Prompt GPT to select the most suitable recipes based on user's query
    const prompt = `
