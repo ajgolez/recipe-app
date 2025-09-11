@@ -81,6 +81,7 @@ export function RecipeBrowser({
     const fetchRecipes = async () => {
       try {
         const res = await fetch("/api/recipes", {
+          method: "GET",
           cache: "no-store",
         });
         const data = await res.json();
@@ -94,44 +95,44 @@ export function RecipeBrowser({
     fetchRecipes();
   }, []);
 
-  // Load saved data from localStorage with error handling
-  useEffect(() => {
-    try {
-      const savedIds = localStorage.getItem("savedRecipes");
-      if (savedIds) {
-        const parsedIds = JSON.parse(savedIds);
-        if (Array.isArray(parsedIds)) {
-          setSavedRecipeIds(parsedIds);
-        }
-      }
+  // // Load saved data from localStorage with error handling
+  // useEffect(() => {
+  //   try {
+  //     const savedIds = localStorage.getItem("savedRecipes");
+  //     if (savedIds) {
+  //       const parsedIds = JSON.parse(savedIds);
+  //       if (Array.isArray(parsedIds)) {
+  //         setSavedRecipeIds(parsedIds);
+  //       }
+  //     }
 
-      const customRecipesData = localStorage.getItem("customRecipes");
-      if (customRecipesData) {
-        const parsedRecipes = JSON.parse(customRecipesData);
-        if (Array.isArray(parsedRecipes)) {
-          setCustomRecipes(parsedRecipes);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load saved data:", error);
-      if (onStorageError) {
-        onStorageError(error as Error);
-      }
-      toast.error("Failed to load some saved data. Starting fresh.");
-    }
-  }, [onStorageError]);
+  //     const customRecipesData = localStorage.getItem("customRecipes");
+  //     if (customRecipesData) {
+  //       const parsedRecipes = JSON.parse(customRecipesData);
+  //       if (Array.isArray(parsedRecipes)) {
+  //         setCustomRecipes(parsedRecipes);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load saved data:", error);
+  //     if (onStorageError) {
+  //       onStorageError(error as Error);
+  //     }
+  //     toast.error("Failed to load some saved data. Starting fresh.");
+  //   }
+  // }, [onStorageError]);
 
   // Save custom recipes to localStorage with error handling
-  useEffect(() => {
-    try {
-      localStorage.setItem("customRecipes", JSON.stringify(customRecipes));
-    } catch (error) {
-      console.error("Failed to save custom recipes:", error);
-      if (onStorageError) {
-        onStorageError(error as Error);
-      }
-    }
-  }, [customRecipes, onStorageError]);
+  // useEffect(() => {
+  //   try {
+  //     localStorage.setItem("customRecipes", JSON.stringify(customRecipes));
+  //   } catch (error) {
+  //     console.error("Failed to save custom recipes:", error);
+  //     if (onStorageError) {
+  //       onStorageError(error as Error);
+  //     }
+  //   }
+  // }, [customRecipes, onStorageError]);
 
   // Get all recipes (system + custom)
   const allRecipes = useMemo(() => {
@@ -227,8 +228,8 @@ export function RecipeBrowser({
     }
   };
 
-  // Handlers for custom recipe creation and management
-  const handleSaveCustomRecipe = (recipe: CustomRecipe) => {
+  // Save Custom Recipes. Handlers for custom recipe creation and management
+  const handleSaveCustomRecipe = async (recipe: CustomRecipe) => {
     if (editingCustomRecipe) {
       // Update existing recipe
       setCustomRecipes((prev) =>
@@ -237,9 +238,20 @@ export function RecipeBrowser({
       setEditingCustomRecipe(null);
       toast.success("Recipe updated successfully");
     } else {
-      // Add new recipe
-      setCustomRecipes((prev) => [...prev, recipe]);
-      toast.success("Custom recipe created successfully");
+      // Add new recipe 
+      try {
+        const res = await fetch("/api/recipes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(recipe),
+        });
+
+        const data = await res.json();
+        toast.success("Custom recipe created successfully");
+      } catch (err) {
+        toast.error("Failed to save recipe:" + (err as Error).message);
+      }
+      
     }
     setShowCustomCreator(false);
   };
@@ -695,7 +707,6 @@ export function RecipeBrowser({
 
             {/* Render the ChatAssistant component, passing setResults as the callback prop */}
             <ChatAssistant />
-
           </TabsContent>
 
           <TabsContent value="settings">
