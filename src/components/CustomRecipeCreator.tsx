@@ -11,7 +11,7 @@ import { Separator } from './ui/separator';
 import { Plus, X, Upload, Link, Camera, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageBrowser } from './ImageBrowser';
-
+import { cuisineKeywords } from '@/utils/filters/keywords';
 interface CustomRecipe {
   id: string;
   title: string;
@@ -143,10 +143,10 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
 
   const [newTag, setNewTag] = useState('');
 
-  const cuisines = [
-    'Italian', 'Mexican', 'Asian', 'American', 'Mediterranean', 'Indian',
-    'French', 'Thai', 'Chinese', 'Japanese', 'Greek', 'Middle Eastern'
-  ];
+  // const cuisines = [
+  //   'Italian', 'Mexican', 'Asian', 'American', 'Mediterranean', 'Indian',
+  //   'French', 'Thai', 'Chinese', 'Japanese', 'Greek', 'Middle Eastern'
+  // ];
 
   const commonTags = [
     'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto', 'Low-Carb',
@@ -378,7 +378,7 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
               <SelectValue placeholder="Select cuisine" />
             </SelectTrigger>
             <SelectContent>
-              {cuisines.map(cuisine => (
+              {cuisineKeywords.map(cuisine => (
                 <SelectItem key={cuisine} value={cuisine}>{cuisine}</SelectItem>
               ))}
             </SelectContent>

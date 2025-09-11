@@ -76,7 +76,7 @@ export function RecipeBrowser({
   const [showSavedRecipes, setShowSavedRecipes] = useState(false);
   const [systemRecipes, setSystemRecipes] = useState<Recipe[]>([]);
 
-  // Fetch system and custom recipes from API on component mount
+  // AJG - Fetch system and custom recipes from API on component mount
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -194,7 +194,7 @@ export function RecipeBrowser({
     }
   };
 
-  // Save Custom Recipes. Handlers for custom recipe creation and management
+  // AJG - Save Custom Recipes. Handlers for custom recipe creation and management
   const handleSaveCustomRecipe = async (recipe: CustomRecipe) => {
     if (editingCustomRecipe) {
       // Update existing recipe
@@ -230,21 +230,23 @@ export function RecipeBrowser({
   };
 
   // Delete custom recipe with error handling
-  const handleDeleteCustomRecipe = (recipeId: string) => {
+  const handleDeleteCustomRecipe = async (id: string) => {
     try {
-      setCustomRecipes((prev) => prev.filter((r) => r.id !== recipeId));
-      // Also remove from saved if it was saved
-      if (savedRecipeIds.includes(recipeId)) {
-        const newSavedIds = savedRecipeIds.filter((id) => id !== recipeId);
-        setSavedRecipeIds(newSavedIds);
-        localStorage.setItem("savedRecipes", JSON.stringify(newSavedIds));
+      console.log("Deleting recipe with id:", id);
+      const res = await fetch(`/api/recipes/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        console.log('Deleted!');
+        toast.success("Recipe deleted successfully");
+      
+      } else {
+        console.error('Delete failed');
+        toast.error("Failed to delete recipe. Please try again.");
       }
-      toast.success("Recipe deleted successfully");
     } catch (error) {
-      console.error("Failed to delete recipe:", error);
-      if (onStorageError) {
-        onStorageError(error as Error);
-      }
+       console.error("Failed to delete recipe:", error);
       toast.error("Failed to delete recipe. Please try again.");
     }
   };
