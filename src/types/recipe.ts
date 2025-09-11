@@ -48,7 +48,7 @@ export interface Recipe {
 export interface CustomRecipe extends Recipe {
   isCustom: true;
   createdAt: string;
-  source?: 'manual' | 'import' | 'photo';
+  source?: 'manual' | 'import' | 'ai';
 }
 
 export type AnyRecipe = Recipe | CustomRecipe;

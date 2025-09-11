@@ -85,7 +85,11 @@ export function RecipeBrowser({
           cache: "no-store",
         });
         const data = await res.json();
-        setSystemRecipes(data);
+        const custom = data.filter((r:Recipe) => 'isCustom' in r && r.isCustom);
+        const system = data.filter((r:Recipe) => !('isCustom' in r && r.isCustom));
+        setSystemRecipes(system);
+        setCustomRecipes(custom);
+
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
         toast.error("Failed to load recipes.");
