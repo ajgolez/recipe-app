@@ -76,7 +76,7 @@ export function RecipeBrowser({
   const [showSavedRecipes, setShowSavedRecipes] = useState(false);
   const [systemRecipes, setSystemRecipes] = useState<Recipe[]>([]);
 
-  // Fetch system recipes from API on component mount
+  // Fetch system and custom recipes from API on component mount
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -99,44 +99,6 @@ export function RecipeBrowser({
     fetchRecipes();
   }, []);
 
-  // // Load saved data from localStorage with error handling
-  // useEffect(() => {
-  //   try {
-  //     const savedIds = localStorage.getItem("savedRecipes");
-  //     if (savedIds) {
-  //       const parsedIds = JSON.parse(savedIds);
-  //       if (Array.isArray(parsedIds)) {
-  //         setSavedRecipeIds(parsedIds);
-  //       }
-  //     }
-
-  //     const customRecipesData = localStorage.getItem("customRecipes");
-  //     if (customRecipesData) {
-  //       const parsedRecipes = JSON.parse(customRecipesData);
-  //       if (Array.isArray(parsedRecipes)) {
-  //         setCustomRecipes(parsedRecipes);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to load saved data:", error);
-  //     if (onStorageError) {
-  //       onStorageError(error as Error);
-  //     }
-  //     toast.error("Failed to load some saved data. Starting fresh.");
-  //   }
-  // }, [onStorageError]);
-
-  // Save custom recipes to localStorage with error handling
-  // useEffect(() => {
-  //   try {
-  //     localStorage.setItem("customRecipes", JSON.stringify(customRecipes));
-  //   } catch (error) {
-  //     console.error("Failed to save custom recipes:", error);
-  //     if (onStorageError) {
-  //       onStorageError(error as Error);
-  //     }
-  //   }
-  // }, [customRecipes, onStorageError]);
 
   // Get all recipes (system + custom)
   const allRecipes = useMemo(() => {
