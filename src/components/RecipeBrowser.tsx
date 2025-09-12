@@ -77,8 +77,7 @@ export function RecipeBrowser({
   const [systemRecipes, setSystemRecipes] = useState<Recipe[]>([]);
 
   // AJG - Fetch system and custom recipes from API on component mount
-  useEffect(() => {
-    const fetchRecipes = async () => {
+  const fetchRecipes = async () => {
       try {
         const res = await fetch("/api/recipes", {
           method: "GET",
@@ -99,6 +98,8 @@ export function RecipeBrowser({
       }
     };
 
+  useEffect(() => {
+    // Initial load of saved recipes
     fetchRecipes();
   }, []);
 
@@ -250,6 +251,9 @@ export function RecipeBrowser({
 
     // 👋 Close the custom recipe creator UI, whether editing or adding
     setShowCustomCreator(false);
+
+    // Refresh recipes to show the new or updated recipe
+    fetchRecipes();
   };
 
   // Edit existing custom recipe
@@ -278,6 +282,8 @@ export function RecipeBrowser({
       console.error("Failed to delete recipe:", error);
       toast.error("Failed to delete recipe. Please try again.");
     }
+    // Refresh recipes to reflect deletion
+    fetchRecipes();
   };
 
   if (showCustomCreator) {
