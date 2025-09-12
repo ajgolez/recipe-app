@@ -98,8 +98,8 @@ export function RecipeBrowser({
       }
     };
 
+  // AJG - Initial load of saved recipes
   useEffect(() => {
-    // Initial load of saved recipes
     fetchRecipes();
   }, []);
 
@@ -197,7 +197,7 @@ export function RecipeBrowser({
     }
   };
 
-  // AJG - Save Custom Recipes. Handlers for custom recipe creation and management
+  // AJG - Save Custom Recipes after CREATING OR EDITING. Handlers for custom recipe creation and management
   const handleSaveCustomRecipe = async (recipe: CustomRecipe) => {
     // Check if we're editing an existing recipe
     if (editingCustomRecipe) {
@@ -263,7 +263,7 @@ export function RecipeBrowser({
     setShowCustomManager(false);
   };
 
-  // Delete custom recipe with error handling
+  // AJG - Delete custom recipe with error handling
   const handleDeleteCustomRecipe = async (id: string) => {
     try {
       console.log("Deleting recipe with id:", id);

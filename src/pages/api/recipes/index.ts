@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { db } from "../../../../lib/firebaseAdmin";
 import { CustomRecipe } from "@/types/recipe"; // Update path to your type
 
-// Define an API route handler function for GET and POST requests
+// AJG - Define an API route handler function for GET and POST requests
 export default async function handler(
   req: NextApiRequest, // Incoming request object with query, body, method, etc.
   res: NextApiResponse // Response object to send data back to the client
