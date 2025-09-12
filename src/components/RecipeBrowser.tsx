@@ -85,11 +85,14 @@ export function RecipeBrowser({
           cache: "no-store",
         });
         const data = await res.json();
-        const custom = data.filter((r:Recipe) => 'isCustom' in r && r.isCustom);
-        const system = data.filter((r:Recipe) => !('isCustom' in r && r.isCustom));
+        const custom = data.filter(
+          (r: Recipe) => "isCustom" in r && r.isCustom
+        );
+        const system = data.filter(
+          (r: Recipe) => !("isCustom" in r && r.isCustom)
+        );
         setSystemRecipes(system);
         setCustomRecipes(custom);
-
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
         toast.error("Failed to load recipes.");
@@ -98,7 +101,6 @@ export function RecipeBrowser({
 
     fetchRecipes();
   }, []);
-
 
   // Get all recipes (system + custom)
   const allRecipes = useMemo(() => {
@@ -196,29 +198,57 @@ export function RecipeBrowser({
 
   // AJG - Save Custom Recipes. Handlers for custom recipe creation and management
   const handleSaveCustomRecipe = async (recipe: CustomRecipe) => {
+    // Check if we're editing an existing recipe
     if (editingCustomRecipe) {
       // Update existing recipe
-      setCustomRecipes((prev) =>
-        prev.map((r) => (r.id === editingCustomRecipe.id ? recipe : r))
-      );
-      setEditingCustomRecipe(null);
-      toast.success("Recipe updated successfully");
-    } else {
-      // Add new recipe 
       try {
-        const res = await fetch("/api/recipes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(recipe),
+        console.log("Updating recipe with id:", editingCustomRecipe.id);
+
+        // Send PUT request to API endpoint with updated recipe data
+        const res = await fetch(`/api/recipes/${editingCustomRecipe.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json", // Specify JSON body
+          },
+          body: JSON.stringify(recipe), // Convert recipe object to JSON string
         });
 
+        // If update was successful
+        if (res.ok) {
+          console.log("Updated!");
+          toast.success("Recipe updated successfully"); // Show success toast
+          setSelectedRecipe(null) //TODO: might not need this
+        } else {
+          // If server responded with an error status
+          console.error("Update failed");
+          toast.error("Failed to update recipe. Please try again."); // Show error toast
+        }
+      } catch (error) {
+        // Catch any network or unexpected errors
+        console.error("Failed to update recipe:", error);
+        toast.error("Failed to update recipe. Please try again.");
+      }
+    } else {
+      // Create a new recipe
+      try {
+        // Send POST request to create new recipe
+        const res = await fetch("/api/recipes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }, // Specify JSON body
+          body: JSON.stringify(recipe), // Convert recipe to JSON
+        });
+
+        // Parse returned data (optional, but could be used to update UI)
         const data = await res.json();
-        toast.success("Custom recipe created successfully");
+
+        toast.success("Custom recipe created successfully"); // Show success toast
       } catch (err) {
+        // Handle any errors during creation
         toast.error("Failed to save recipe:" + (err as Error).message);
       }
-      
     }
+
+    // 👋 Close the custom recipe creator UI, whether editing or adding
     setShowCustomCreator(false);
   };
 
@@ -234,19 +264,18 @@ export function RecipeBrowser({
     try {
       console.log("Deleting recipe with id:", id);
       const res = await fetch(`/api/recipes/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (res.ok) {
-        console.log('Deleted!');
+        console.log("Deleted!");
         toast.success("Recipe deleted successfully");
-      
       } else {
-        console.error('Delete failed');
+        console.error("Delete failed");
         toast.error("Failed to delete recipe. Please try again.");
       }
     } catch (error) {
-       console.error("Failed to delete recipe:", error);
+      console.error("Failed to delete recipe:", error);
       toast.error("Failed to delete recipe. Please try again.");
     }
   };
@@ -259,6 +288,7 @@ export function RecipeBrowser({
           setEditingCustomRecipe(null);
         }}
         onSave={handleSaveCustomRecipe}
+        editingRecipe={editingCustomRecipe}
       />
     );
   }

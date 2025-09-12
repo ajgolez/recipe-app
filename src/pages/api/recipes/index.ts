@@ -4,8 +4,8 @@ import { CustomRecipe } from "@/types/recipe"; // Update path to your type
 
 // Define an API route handler function for GET and POST requests
 export default async function handler(
-  req: NextApiRequest,        // Incoming request object with query, body, method, etc.
-  res: NextApiResponse        // Response object to send data back to the client
+  req: NextApiRequest, // Incoming request object with query, body, method, etc.
+  res: NextApiResponse // Response object to send data back to the client
 ) {
   // Destructure the 'id' from the query string and extract the HTTP method
   const {
@@ -27,14 +27,13 @@ export default async function handler(
 
       // Respond with the created recipe (including the generated ID)
       res.status(201).json({ ...newRecipe, id: docRef.id });
-
     } catch (error) {
       // Log any errors that occur and return a 500 Internal Server Error
       console.error("Error saving recipe:", error);
       res.status(500).json({ error: "Failed to save recipe" });
     }
 
-  // Handle GET request — used to fetch all recipes
+    // Handle GET request — used to fetch all recipes
   } else if (req.method === "GET") {
     // NOTE: uses a snapshot to get all documents in the collection because
     // Firestore does not have a simple .getAll() method for collections.
@@ -49,7 +48,7 @@ export default async function handler(
     // Send the list of recipes as a JSON response
     res.status(200).json(recipes);
 
-  // Handle unsupported HTTP methods
+    // Handle unsupported HTTP methods
   } else {
     // Set the allowed methods in the response header
     res.setHeader("Allow", ["GET", "POST"]);

@@ -1,17 +1,29 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
-import { Plus, X, Upload, Link, Camera, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
-import { ImageBrowser } from './ImageBrowser';
-import { cuisineKeywords } from '@/utils/filters/keywords';
+import { useState } from "react";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Badge } from "./ui/badge";
+import { Separator } from "./ui/separator";
+import { Plus, X, Upload, Link, Camera, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { ImageBrowser } from "./ImageBrowser";
+import { cuisineKeywords, dietaryTagKeywords } from "@/utils/filters/keywords";
 interface CustomRecipe {
   id: string;
   title: string;
@@ -20,7 +32,7 @@ interface CustomRecipe {
   prepTime: number;
   cookTime: number;
   servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   cuisine: string;
   dietaryTags: string[];
   ingredients: Array<{
@@ -57,16 +69,21 @@ interface CustomRecipe {
   mealTypes: string[];
   isCustom: true;
   createdAt: string;
-  source?: 'manual' | 'import' | 'photo';
+  source?: "manual" | "import" | "photo";
 }
 
 interface CustomRecipeCreatorProps {
   onBack: () => void;
   onSave: (recipe: CustomRecipe) => void;
+  editingRecipe?: CustomRecipe | null;
 }
 
-export function CustomRecipeCreator({ onBack, onSave }: CustomRecipeCreatorProps) {
-  const [activeTab, setActiveTab] = useState('manual');
+export function CustomRecipeCreator({
+  onBack,
+  onSave,
+  editingRecipe,
+}: CustomRecipeCreatorProps) {
+  const [activeTab, setActiveTab] = useState("manual");
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,8 +93,12 @@ export function CustomRecipeCreator({ onBack, onSave }: CustomRecipeCreatorProps
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Recipes
           </Button>
-          <h1>Create Custom Recipe</h1>
-          <p className="text-muted-foreground">Add your own recipes to your collection</p>
+          <h1>{editingRecipe ? "Edit Recipe" : "Create Custom Recipe"}</h1>
+          <p className="text-muted-foreground">
+            {editingRecipe
+              ? "Update your recipe details"
+              : "Add your own recipes to your collection"}
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -86,170 +107,162 @@ export function CustomRecipeCreator({ onBack, onSave }: CustomRecipeCreatorProps
             <TabsTrigger value="import">Import from URL</TabsTrigger>
             <TabsTrigger value="photo">Photo/OCR</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="manual">
-            <ManualRecipeForm onSave={onSave} />
+            <ManualRecipeForm onSave={onSave} editingRecipe={editingRecipe} />
           </TabsContent>
-          
+
           <TabsContent value="import">
-            <ImportRecipeForm onSave={onSave} />
+            <ImportRecipeForm onSave={onSave} editingRecipe={editingRecipe} />
           </TabsContent>
-          
+
           <TabsContent value="photo">
-            <PhotoRecipeForm onSave={onSave} />
+            <PhotoRecipeForm onSave={onSave} editingRecipe={editingRecipe} />
           </TabsContent>
         </Tabs>
       </div>
     </div>
   );
 }
-
-function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }) {
+function ManualRecipeForm({
+  onSave,
+  editingRecipe,
+}: {
+  onSave: (recipe: CustomRecipe) => void;
+  editingRecipe?: CustomRecipe | null;
+}) {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    image: '',
-    prepTime: '',
-    cookTime: '',
-    servings: '',
-    difficulty: '',
-    cuisine: '',
-    dietaryTags: [] as string[],
-    ingredients: [{ name: '', amount: '', unit: '' }],
-    instructions: [''],
+    title: editingRecipe?.title || "",
+    description: editingRecipe?.description || "",
+    image: editingRecipe?.image || "",
+    prepTime: editingRecipe?.prepTime?.toString() || "",
+    cookTime: editingRecipe?.cookTime?.toString() || "",
+    servings: editingRecipe?.servings?.toString() || "",
+    difficulty: editingRecipe?.difficulty || "",
+    cuisine: editingRecipe?.cuisine || "",
+    dietaryTags: editingRecipe?.dietaryTags || ([] as string[]),
+    ingredients: editingRecipe?.ingredients?.length
+      ? editingRecipe.ingredients.map((ing) => ({
+          name: typeof ing === "string" ? ing : ing.name || "",
+          amount: typeof ing === "string" ? "" : ing.amount || "",
+          unit: typeof ing === "string" ? "" : ing.unit || "",
+        }))
+      : [{ name: "", amount: "", unit: "" }],
+    instructions: editingRecipe?.instructions?.length
+      ? editingRecipe.instructions
+      : [""],
     nutrition: {
-      calories: '',
-      protein: '',
-      carbs: '',
-      fat: '',
-      fiber: '',
-      sugar: '',
-      sodium: '',
-      cholesterol: '',
-      calcium: '',
-      iron: '',
-      vitaminD: '',
-      potassium: '',
-      vitaminC: '',
-      vitaminA: '',
-      vitaminB12: '',
-      vitaminE: '',
-      folate: '',
-      magnesium: '',
-      zinc: '',
-      phosphorus: ''
-    }
+      calories: editingRecipe?.nutrition?.calories?.toString() || "",
+      protein: editingRecipe?.nutrition?.protein?.toString() || "",
+      carbs: editingRecipe?.nutrition?.carbs?.toString() || "",
+      fat: editingRecipe?.nutrition?.fat?.toString() || "",
+      fiber: editingRecipe?.nutrition?.fiber?.toString() || "",
+      sugar: editingRecipe?.nutrition?.sugar?.toString() || "",
+    },
   });
 
-  const [newTag, setNewTag] = useState('');
-
-  // const cuisines = [
-  //   'Italian', 'Mexican', 'Asian', 'American', 'Mediterranean', 'Indian',
-  //   'French', 'Thai', 'Chinese', 'Japanese', 'Greek', 'Middle Eastern'
-  // ];
-
-  const commonTags = [
-    'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto', 'Low-Carb',
-    'High-Protein', 'Quick & Easy', 'One-Pot', 'Freezer-Friendly'
-  ];
+  const [newTag, setNewTag] = useState("");
 
   const addIngredient = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ingredients: [...prev.ingredients, { name: '', amount: '', unit: '' }]
+      ingredients: [...prev.ingredients, { name: "", amount: "", unit: "" }],
     }));
   };
 
   const removeIngredient = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ingredients: prev.ingredients.filter((_, i) => i !== index)
+      ingredients: prev.ingredients.filter((_, i) => i !== index),
     }));
   };
 
   const updateIngredient = (index: number, field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ingredients: prev.ingredients.map((ing, i) => 
+      ingredients: prev.ingredients.map((ing, i) =>
         i === index ? { ...ing, [field]: value } : ing
-      )
+      ),
     }));
   };
 
   const addInstruction = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      instructions: [...prev.instructions, '']
+      instructions: [...prev.instructions, ""],
     }));
   };
 
   const removeInstruction = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      instructions: prev.instructions.filter((_, i) => i !== index)
+      instructions: prev.instructions.filter((_, i) => i !== index),
     }));
   };
 
   const updateInstruction = (index: number, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      instructions: prev.instructions.map((inst, i) => 
+      instructions: prev.instructions.map((inst, i) =>
         i === index ? value : inst
-      )
+      ),
     }));
   };
 
   const addTag = (tag: string) => {
     if (!formData.dietaryTags.includes(tag)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        dietaryTags: [...prev.dietaryTags, tag]
+        dietaryTags: [...prev.dietaryTags, tag],
       }));
     }
   };
 
   const removeTag = (tag: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      dietaryTags: prev.dietaryTags.filter(t => t !== tag)
+      dietaryTags: prev.dietaryTags.filter((t) => t !== tag),
     }));
   };
 
   const handleAddCustomTag = () => {
     if (newTag.trim() && !formData.dietaryTags.includes(newTag.trim())) {
       addTag(newTag.trim());
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const handleSave = () => {
     // Validation
     if (!formData.title.trim()) {
-      toast.error('Recipe title is required');
+      toast.error("Recipe title is required");
       return;
     }
-    if (formData.ingredients.some(ing => !ing.name.trim())) {
-      toast.error('All ingredients must have a name');
+    if (formData.ingredients.some((ing) => !ing.name.trim())) {
+      toast.error("All ingredients must have a name");
       return;
     }
-    if (formData.instructions.some(inst => !inst.trim())) {
-      toast.error('All instruction steps must be filled');
+    if (formData.instructions.some((inst) => !inst.trim())) {
+      toast.error("All instruction steps must be filled");
       return;
     }
 
     const recipe: CustomRecipe = {
-      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id:
+        editingRecipe?.id ||
+        `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: formData.title,
       description: formData.description,
-      image: formData.image || '/placeholder-recipe.jpg',
+      image: formData.image || "/placeholder-recipe.jpg",
       prepTime: parseInt(formData.prepTime) || 0,
       cookTime: parseInt(formData.cookTime) || 0,
       servings: parseInt(formData.servings) || 1,
-      difficulty: formData.difficulty as 'Easy' | 'Medium' | 'Hard' || 'Medium',
-      cuisine: formData.cuisine || 'Other',
+      difficulty:
+        (formData.difficulty as "Easy" | "Medium" | "Hard") || "Medium",
+      cuisine: formData.cuisine || "Other",
       dietaryTags: formData.dietaryTags,
-      ingredients: formData.ingredients.filter(ing => ing.name.trim()),
-      instructions: formData.instructions.filter(inst => inst.trim()),
+      ingredients: formData.ingredients.filter((ing) => ing.name.trim()),
+      instructions: formData.instructions.filter((inst) => inst.trim()),
       nutrition: {
         calories: parseInt(formData.nutrition.calories) || 0,
         protein: parseInt(formData.nutrition.protein) || 0,
@@ -270,26 +283,32 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
         folate: 0,
         magnesium: 0,
         zinc: 0,
-        phosphorus: 0
+        phosphorus: 0,
       },
       rating: 0,
       reviewCount: 0,
       healthScore: 0,
       mealTypes: [],
       isCustom: true,
-      createdAt: new Date().toISOString(),
-      source: 'manual'
+      createdAt: editingRecipe?.createdAt || new Date().toISOString(),
+      source: editingRecipe?.source || "manual",
     };
 
     onSave(recipe);
-    toast.success('Recipe saved successfully!');
+    toast.success("Recipe saved successfully!");
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Manual Recipe Entry</CardTitle>
-        <CardDescription>Enter your recipe details manually</CardDescription>
+        <CardTitle>
+          {editingRecipe ? "Edit Recipe Details" : "Manual Recipe Entry"}
+        </CardTitle>
+        <CardDescription>
+          {editingRecipe
+            ? "Update your recipe details below"
+            : "Enter your recipe details manually"}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Basic Information */}
@@ -299,14 +318,18 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               placeholder="Enter recipe title"
             />
           </div>
-          
+
           <ImageBrowser
             selectedImage={formData.image}
-            onImageSelect={(imageUrl) => setFormData(prev => ({ ...prev, image: imageUrl }))}
+            onImageSelect={(imageUrl) =>
+              setFormData((prev) => ({ ...prev, image: imageUrl }))
+            }
           />
         </div>
 
@@ -315,7 +338,9 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
           <Textarea
             id="description"
             value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, description: e.target.value }))
+            }
             placeholder="Brief description of your recipe"
             rows={3}
           />
@@ -329,36 +354,48 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
               id="prep-time"
               type="number"
               value={formData.prepTime}
-              onChange={(e) => setFormData(prev => ({ ...prev, prepTime: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, prepTime: e.target.value }))
+              }
               placeholder="15"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="cook-time">Cook Time (min)</Label>
             <Input
               id="cook-time"
               type="number"
               value={formData.cookTime}
-              onChange={(e) => setFormData(prev => ({ ...prev, cookTime: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, cookTime: e.target.value }))
+              }
               placeholder="30"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="servings">Servings</Label>
             <Input
               id="servings"
               type="number"
               value={formData.servings}
-              onChange={(e) => setFormData(prev => ({ ...prev, servings: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, servings: e.target.value }))
+              }
               placeholder="4"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="difficulty">Difficulty</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty: value }))}>
+            <Select
+              value={formData.difficulty}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, difficulty: value }))
+              }
+            >
+              {" "}
               <SelectTrigger>
                 <SelectValue placeholder="Select difficulty" />
               </SelectTrigger>
@@ -373,13 +410,21 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
 
         <div className="space-y-2">
           <Label htmlFor="cuisine">Cuisine</Label>
-          <Select onValueChange={(value) => setFormData(prev => ({ ...prev, cuisine: value }))}>
+          <Select
+            value={formData.cuisine}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, cuisine: value }))
+            }
+          >
+            {" "}
             <SelectTrigger>
               <SelectValue placeholder="Select cuisine" />
             </SelectTrigger>
             <SelectContent>
-              {cuisineKeywords.map(cuisine => (
-                <SelectItem key={cuisine} value={cuisine}>{cuisine}</SelectItem>
+              {cuisineKeywords.map((cuisine) => (
+                <SelectItem key={cuisine} value={cuisine}>
+                  {cuisine}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -389,12 +434,18 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
         <div className="space-y-3">
           <Label>Dietary Tags</Label>
           <div className="flex flex-wrap gap-2">
-            {commonTags.map(tag => (
+            {dietaryTagKeywords.map((tag) => (
               <Badge
                 key={tag}
-                variant={formData.dietaryTags.includes(tag) ? "default" : "outline"}
+                variant={
+                  formData.dietaryTags.includes(tag) ? "default" : "outline"
+                }
                 className="cursor-pointer"
-                onClick={() => formData.dietaryTags.includes(tag) ? removeTag(tag) : addTag(tag)}
+                onClick={() =>
+                  formData.dietaryTags.includes(tag)
+                    ? removeTag(tag)
+                    : addTag(tag)
+                }
               >
                 {tag}
               </Badge>
@@ -405,18 +456,26 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Add custom tag"
-              onKeyPress={(e) => e.key === 'Enter' && handleAddCustomTag()}
+              onKeyPress={(e) => e.key === "Enter" && handleAddCustomTag()}
             />
-            <Button type="button" onClick={handleAddCustomTag} variant="outline" size="sm">
+            <Button
+              type="button"
+              onClick={handleAddCustomTag}
+              variant="outline"
+              size="sm"
+            >
               Add
             </Button>
           </div>
           {formData.dietaryTags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {formData.dietaryTags.map(tag => (
+              {formData.dietaryTags.map((tag) => (
                 <Badge key={tag} variant="secondary" className="gap-1">
                   {tag}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => removeTag(tag)}
+                  />
                 </Badge>
               ))}
             </div>
@@ -429,32 +488,43 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label>Ingredients *</Label>
-            <Button type="button" onClick={addIngredient} variant="outline" size="sm">
+            <Button
+              type="button"
+              onClick={addIngredient}
+              variant="outline"
+              size="sm"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Ingredient
             </Button>
           </div>
-          
+
           {formData.ingredients.map((ingredient, index) => (
             <div key={index} className="grid grid-cols-12 gap-2 items-end">
               <div className="col-span-5">
                 <Input
                   value={ingredient.name}
-                  onChange={(e) => updateIngredient(index, 'name', e.target.value)}
+                  onChange={(e) =>
+                    updateIngredient(index, "name", e.target.value)
+                  }
                   placeholder="Ingredient name"
                 />
               </div>
               <div className="col-span-3">
                 <Input
                   value={ingredient.amount}
-                  onChange={(e) => updateIngredient(index, 'amount', e.target.value)}
+                  onChange={(e) =>
+                    updateIngredient(index, "amount", e.target.value)
+                  }
                   placeholder="Amount"
                 />
               </div>
               <div className="col-span-3">
                 <Input
                   value={ingredient.unit}
-                  onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
+                  onChange={(e) =>
+                    updateIngredient(index, "unit", e.target.value)
+                  }
                   placeholder="Unit"
                 />
               </div>
@@ -480,12 +550,17 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label>Instructions *</Label>
-            <Button type="button" onClick={addInstruction} variant="outline" size="sm">
+            <Button
+              type="button"
+              onClick={addInstruction}
+              variant="outline"
+              size="sm"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Step
             </Button>
           </div>
-          
+
           {formData.instructions.map((instruction, index) => (
             <div key={index} className="flex gap-2">
               <div className="flex-1">
@@ -522,10 +597,12 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
                 id="calories"
                 type="number"
                 value={formData.nutrition.calories}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  nutrition: { ...prev.nutrition, calories: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    nutrition: { ...prev.nutrition, calories: e.target.value },
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -535,10 +612,12 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
                 id="protein"
                 type="number"
                 value={formData.nutrition.protein}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  nutrition: { ...prev.nutrition, protein: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    nutrition: { ...prev.nutrition, protein: e.target.value },
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -548,10 +627,12 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
                 id="carbs"
                 type="number"
                 value={formData.nutrition.carbs}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  nutrition: { ...prev.nutrition, carbs: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    nutrition: { ...prev.nutrition, carbs: e.target.value },
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -561,10 +642,12 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
                 id="fat"
                 type="number"
                 value={formData.nutrition.fat}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  nutrition: { ...prev.nutrition, fat: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    nutrition: { ...prev.nutrition, fat: e.target.value },
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -574,10 +657,12 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
                 id="fiber"
                 type="number"
                 value={formData.nutrition.fiber}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  nutrition: { ...prev.nutrition, fiber: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    nutrition: { ...prev.nutrition, fiber: e.target.value },
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -585,51 +670,60 @@ function ManualRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave}>Save Recipe</Button>
+          <Button onClick={handleSave}>
+            {editingRecipe ? "Update Recipe" : "Save Recipe"}
+          </Button>
         </div>
       </CardContent>
     </Card>
   );
 }
-
-function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }) {
-  const [url, setUrl] = useState('');
+function ImportRecipeForm({
+  onSave,
+  editingRecipe,
+}: {
+  onSave: (recipe: CustomRecipe) => void;
+  editingRecipe?: CustomRecipe | null;
+}) {
+  const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [importedData, setImportedData] = useState<Partial<CustomRecipe> | null>(null);
+  const [importedData, setImportedData] =
+    useState<Partial<CustomRecipe> | null>(null);
 
   const handleImport = async () => {
     if (!url.trim()) {
-      toast.error('Please enter a valid URL');
+      toast.error("Please enter a valid URL");
       return;
     }
 
     setIsLoading(true);
-    
+
     // Simulate API call to import recipe
     setTimeout(() => {
       // Mock imported recipe data
       const mockImportedRecipe = {
         title: "Imported: Delicious Pasta Dish",
         description: "A wonderful pasta recipe imported from the web",
-        image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500",
+        image:
+          "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500",
         prepTime: 15,
         cookTime: 25,
         servings: 4,
-        difficulty: 'Medium' as const,
-        cuisine: 'Italian',
-        dietaryTags: ['Vegetarian'],
+        difficulty: "Medium" as const,
+        cuisine: "Italian",
+        dietaryTags: ["Vegetarian"],
         ingredients: [
-          { name: 'Pasta', amount: '1', unit: 'lb' },
-          { name: 'Tomatoes', amount: '2', unit: 'cups' },
-          { name: 'Garlic', amount: '3', unit: 'cloves' },
-          { name: 'Olive Oil', amount: '2', unit: 'tbsp' }
+          { name: "Pasta", amount: "1", unit: "lb" },
+          { name: "Tomatoes", amount: "2", unit: "cups" },
+          { name: "Garlic", amount: "3", unit: "cloves" },
+          { name: "Olive Oil", amount: "2", unit: "tbsp" },
         ],
         instructions: [
-          'Boil water in a large pot',
-          'Cook pasta according to package directions',
-          'Heat olive oil in a pan and sauté garlic',
-          'Add tomatoes and simmer',
-          'Combine pasta with sauce and serve'
+          "Boil water in a large pot",
+          "Cook pasta according to package directions",
+          "Heat olive oil in a pan and sauté garlic",
+          "Add tomatoes and simmer",
+          "Combine pasta with sauce and serve",
         ],
         nutrition: {
           calories: 320,
@@ -651,36 +745,40 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
           folate: 0,
           magnesium: 0,
           zinc: 0,
-          phosphorus: 0
-        }
+          phosphorus: 0,
+        },
       };
-      
+
       setImportedData(mockImportedRecipe);
       setIsLoading(false);
-      toast.success('Recipe imported successfully! Review and save.');
+      toast.success("Recipe imported successfully! Review and save.");
     }, 2000);
   };
 
   const handleSave = () => {
     if (!importedData) return;
-    
+
     const recipe: CustomRecipe = {
-      ...importedData as CustomRecipe,
-      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...(importedData as CustomRecipe),
+      id:
+        editingRecipe?.id ||
+        `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       isCustom: true,
-      createdAt: new Date().toISOString(),
-      source: 'import'
+      createdAt: editingRecipe?.createdAt || new Date().toISOString(),
+      source: editingRecipe?.source || "import",
     };
 
     onSave(recipe);
-    toast.success('Imported recipe saved successfully!');
+    toast.success("Imported recipe saved successfully!");
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Import Recipe from URL</CardTitle>
-        <CardDescription>Import recipes from cooking websites and blogs</CardDescription>
+        <CardDescription>
+          Import recipes from cooking websites and blogs
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
@@ -709,9 +807,12 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
               </Button>
             </div>
           </div>
-          
+
           <div className="text-sm text-muted-foreground">
-            <p>Supported sites: AllRecipes, Food Network, Serious Eats, NYT Cooking, and many more.</p>
+            <p>
+              Supported sites: AllRecipes, Food Network, Serious Eats, NYT
+              Cooking, and many more.
+            </p>
           </div>
         </div>
 
@@ -721,9 +822,16 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4>{importedData.title}</h4>
-                <p className="text-sm text-muted-foreground mt-1">{importedData.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {importedData.description}
+                </p>
                 <div className="flex gap-4 mt-2 text-sm">
-                  <span>⏰ {(importedData.prepTime || 0) + (importedData.cookTime || 0)} min</span>
+                  <span>
+                    ⏰{" "}
+                    {(importedData.prepTime || 0) +
+                      (importedData.cookTime || 0)}{" "}
+                    min
+                  </span>
                   <span>👥 {importedData.servings} servings</span>
                   <span>📊 {importedData.difficulty}</span>
                 </div>
@@ -731,15 +839,15 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
               {importedData.image && (
                 <div className="aspect-video rounded-lg overflow-hidden bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={importedData.image} 
+                  <img
+                    src={importedData.image}
                     alt={importedData.title}
                     className="w-full h-full object-cover"
                   />
                 </div>
               )}
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setImportedData(null)}>
                 Cancel
@@ -753,10 +861,17 @@ function ImportRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }
   );
 }
 
-function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void }) {
+function PhotoRecipeForm({
+  onSave,
+  editingRecipe,
+}: {
+  onSave: (recipe: CustomRecipe) => void;
+  editingRecipe?: CustomRecipe | null;
+}) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extractedData, setExtractedData] = useState<Partial<CustomRecipe> | null>(null);
+  const [extractedData, setExtractedData] =
+    useState<Partial<CustomRecipe> | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -767,12 +882,12 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
 
   const handleProcessPhoto = async () => {
     if (!selectedFile) {
-      toast.error('Please select a photo first');
+      toast.error("Please select a photo first");
       return;
     }
 
     setIsProcessing(true);
-    
+
     // Simulate OCR processing
     setTimeout(() => {
       const mockExtractedRecipe = {
@@ -782,21 +897,21 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
         prepTime: 20,
         cookTime: 30,
         servings: 6,
-        difficulty: 'Medium' as const,
-        cuisine: 'American',
+        difficulty: "Medium" as const,
+        cuisine: "American",
         dietaryTags: [],
         ingredients: [
-          { name: 'Flour', amount: '2', unit: 'cups' },
-          { name: 'Sugar', amount: '1', unit: 'cup' },
-          { name: 'Eggs', amount: '2', unit: 'large' },
-          { name: 'Butter', amount: '1/2', unit: 'cup' }
+          { name: "Flour", amount: "2", unit: "cups" },
+          { name: "Sugar", amount: "1", unit: "cup" },
+          { name: "Eggs", amount: "2", unit: "large" },
+          { name: "Butter", amount: "1/2", unit: "cup" },
         ],
         instructions: [
-          'Mix dry ingredients in a bowl',
-          'Cream butter and sugar',
-          'Add eggs one at a time',
-          'Combine wet and dry ingredients',
-          'Bake at 350°F for 25-30 minutes'
+          "Mix dry ingredients in a bowl",
+          "Cream butter and sugar",
+          "Add eggs one at a time",
+          "Combine wet and dry ingredients",
+          "Bake at 350°F for 25-30 minutes",
         ],
         nutrition: {
           calories: 250,
@@ -818,36 +933,42 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
           folate: 0,
           magnesium: 0,
           zinc: 0,
-          phosphorus: 0
-        }
+          phosphorus: 0,
+        },
       };
-      
+
       setExtractedData(mockExtractedRecipe);
       setIsProcessing(false);
-      toast.success('Recipe extracted successfully! Review and edit as needed.');
+      toast.success(
+        "Recipe extracted successfully! Review and edit as needed."
+      );
     }, 3000);
   };
 
   const handleSave = () => {
     if (!extractedData) return;
-    
+
     const recipe: CustomRecipe = {
-      ...extractedData as CustomRecipe,
-      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...(extractedData as CustomRecipe),
+      id:
+        editingRecipe?.id ||
+        `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       isCustom: true,
-      createdAt: new Date().toISOString(),
-      source: 'photo'
+      createdAt: editingRecipe?.createdAt || new Date().toISOString(),
+      source: editingRecipe?.source || "photo",
     };
 
     onSave(recipe);
-    toast.success('Photo recipe saved successfully!');
+    toast.success("Photo recipe saved successfully!");
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Extract Recipe from Photo</CardTitle>
-        <CardDescription>Upload a photo of a recipe and let OCR extract the details</CardDescription>
+        <CardDescription>
+          Upload a photo of a recipe and let OCR extract the details
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
@@ -856,7 +977,8 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
             <div className="space-y-2">
               <p>Upload a photo of your recipe</p>
               <p className="text-sm text-muted-foreground">
-                Supports images of recipe cards, cookbook pages, or handwritten recipes
+                Supports images of recipe cards, cookbook pages, or handwritten
+                recipes
               </p>
             </div>
             <input
@@ -872,8 +994,12 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
               <div className="text-sm">
                 <strong>Selected file:</strong> {selectedFile.name}
               </div>
-              
-              <Button onClick={handleProcessPhoto} disabled={isProcessing} className="w-full">
+
+              <Button
+                onClick={handleProcessPhoto}
+                disabled={isProcessing}
+                className="w-full"
+              >
                 {isProcessing ? (
                   <>
                     <Upload className="h-4 w-4 mr-2 animate-spin" />
@@ -894,9 +1020,10 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
           <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
             <h3>Extracted Recipe Data</h3>
             <p className="text-sm text-muted-foreground">
-              Review the extracted data below. You can edit any fields before saving.
+              Review the extracted data below. You can edit any fields before
+              saving.
             </p>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -908,19 +1035,22 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
                   <Input value={extractedData.servings?.toString()} readOnly />
                 </div>
               </div>
-              
+
               <div>
                 <Label>Ingredients</Label>
                 <div className="space-y-2 mt-2">
                   {extractedData.ingredients?.map((ing, idx) => (
-                    <div key={idx} className="text-sm bg-background p-2 rounded border">
+                    <div
+                      key={idx}
+                      className="text-sm bg-background p-2 rounded border"
+                    >
                       {ing.amount} {ing.unit} {ing.name}
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setExtractedData(null)}>
                 Cancel
@@ -931,7 +1061,9 @@ function PhotoRecipeForm({ onSave }: { onSave: (recipe: CustomRecipe) => void })
         )}
 
         <div className="text-sm text-muted-foreground space-y-2">
-          <p><strong>Tips for better results:</strong></p>
+          <p>
+            <strong>Tips for better results:</strong>
+          </p>
           <ul className="list-disc list-inside space-y-1 ml-4">
             <li>Use good lighting and avoid shadows</li>
             <li>Ensure text is clearly visible and not blurry</li>
