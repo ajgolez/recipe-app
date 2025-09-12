@@ -23,7 +23,7 @@ import { Separator } from "./ui/separator";
 import { Plus, X, Upload, Link, Camera, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { ImageBrowser } from "./ImageBrowser";
-import { cuisineKeywords, dietaryTagKeywords } from "@/utils/filters/keywords";
+import { cuisineKeywords, dietaryTagKeywords, mealTypeKeywords } from "@/utils/filters/keywords";
 interface CustomRecipe {
   id: string;
   title: string;
@@ -34,6 +34,9 @@ interface CustomRecipe {
   servings: number;
   difficulty: "Easy" | "Medium" | "Hard";
   cuisine: string;
+  mealType: string;
+  cookingMethod: string;
+  equipment: string[];
   dietaryTags: string[];
   ingredients: Array<{
     name: string;
@@ -66,7 +69,6 @@ interface CustomRecipe {
   rating: number;
   reviewCount: number;
   healthScore: number;
-  mealTypes: string[];
   isCustom: true;
   createdAt: string;
   source?: "manual" | "import" | "photo";
@@ -140,6 +142,9 @@ function ManualRecipeForm({
     servings: editingRecipe?.servings?.toString() || "",
     difficulty: editingRecipe?.difficulty || "",
     cuisine: editingRecipe?.cuisine || "",
+    mealType: editingRecipe?.mealType || "",
+    cookingMethod: editingRecipe?.cookingMethod || "",
+    equipments: editingRecipe?.equipment || ([] as string[]),
     dietaryTags: editingRecipe?.dietaryTags || ([] as string[]),
     ingredients: editingRecipe?.ingredients?.length
       ? editingRecipe.ingredients.map((ing) => ({
@@ -260,6 +265,9 @@ function ManualRecipeForm({
       difficulty:
         (formData.difficulty as "Easy" | "Medium" | "Hard") || "Medium",
       cuisine: formData.cuisine || "Other",
+      mealType: formData.mealType || "Breakfast",
+      cookingMethod: formData.cookingMethod || "Thermomix",
+      equipment: formData.equipments || "Food processor",
       dietaryTags: formData.dietaryTags,
       ingredients: formData.ingredients.filter((ing) => ing.name.trim()),
       instructions: formData.instructions.filter((inst) => inst.trim()),
@@ -288,7 +296,6 @@ function ManualRecipeForm({
       rating: 0,
       reviewCount: 0,
       healthScore: 0,
-      mealTypes: [],
       isCustom: true,
       createdAt: editingRecipe?.createdAt || new Date().toISOString(),
       source: editingRecipe?.source || "manual",
@@ -408,6 +415,8 @@ function ManualRecipeForm({
           </div>
         </div>
 
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
         <div className="space-y-2">
           <Label htmlFor="cuisine">Cuisine</Label>
           <Select
@@ -429,7 +438,29 @@ function ManualRecipeForm({
             </SelectContent>
           </Select>
         </div>
-
+        <div className="space-y-2">
+          <Label htmlFor="cuisine">Meal Type</Label>
+          <Select
+            value={formData.mealType}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, mealType: value }))
+            }
+          >
+            {" "}
+            <SelectTrigger>
+              <SelectValue placeholder="Select meal type" />
+            </SelectTrigger>
+            <SelectContent>
+              {mealTypeKeywords.map((mealType) => (
+                <SelectItem key={mealType} value={mealType}>
+                  {mealType}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+</div>
         {/* Dietary Tags */}
         <div className="space-y-3">
           <Label>Dietary Tags</Label>

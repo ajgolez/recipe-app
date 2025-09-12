@@ -1,3 +1,4 @@
+import { mealTypeKeywords } from "@/utils/filters/keywords";
 export interface Recipe {
   id: string;
   title: string;
@@ -9,6 +10,7 @@ export interface Recipe {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   cuisine: string;
   tags?: string[];
+  method?: string[];
   dietaryTags: string[];
   ingredients: Array<{
     name: string;
@@ -57,7 +59,7 @@ export interface MealPlanEntry {
   id: string;
   recipeId: string;
   date: string;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  mealType: keyof typeof mealTypeKeywords
   servings?: number;
 }
 
